@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <title>Đồng hồ đếm ngược Pastel</title>
+    <meta charset="UTF-8">
+    <style>
+        /* 1. Thiết lập nền và font chữ chung */
+        body {
+            font-family: 'Fredoka', 'Segoe UI', sans-serif; /* Font tròn trịa dễ thương */
+            background-color: #e0f7fa; /* Nền xanh pastel nhạt */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Chiều cao full màn hình */
+            margin: 0;
+        }
+
+        /* 2. Khung chứa đồng hồ (Cái thẻ trắng ở giữa) */
+        .clock-card {
+            background: white;
+            padding: 40px;
+            border-radius: 25px; /* Bo góc thật tròn */
+            box-shadow: 0 10px 30px rgba(118, 206, 204, 0.2); /* Bóng mờ màu xanh */
+            text-align: center;
+            width: 350px;
+        }
+
+        h2 {
+            color: #00b894; /* Màu xanh mint đậm */
+            margin-bottom: 25px;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* 3. Khu vực nhập liệu */
+        .input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            width: 60px;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            background-color: #f7f9fa;
+            color: #636e72;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #74b9ff; /* Viền xanh dương khi click vào */
+        }
+        
+        /* Nhãn nhỏ dưới ô input (Giờ/Phút/Giây) */
+        .input-label {
+            font-size: 12px;
+            color: #b2bec3;
+            margin-top: 5px;
+        }
+
+        /* 4. Các nút bấm */
+        .btn-group {
+            margin-bottom: 30px;
+        }
+
+        input[type="button"] {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 0 5px;
+        }
+
+        /* Nút Start màu xanh mint */
+        input[value="Start"] {
+            background-color: #55efc4;
+            color: #006266;
+        }
+        
+        /* Nút Stop màu hồng pastel */
+        input[value="Stop"] {
+            background-color: #ff7675;
+            color: #fff;
+        }
+
+        input[type="button"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        input[type="button"]:active {
+            transform: scale(0.95);
+        }
+
+        /* 5. Khu vực hiển thị giờ đếm ngược (To và Đẹp) */
+        .display-area {
+            font-size: 60px; /* Chữ siêu to */
+            font-weight: bold;
+            color: #6c5ce7; /* Màu tím pastel đậm */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            background-color: #f1f2f6;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .colon {
+            color: #a29bfe; /* Dấu hai chấm nhạt hơn */
+            font-size: 40px;
+            margin-top: -10px;
+        }
+
+    </style>
+    
+    <script language="javascript">
+        var h = null; 
+        var m = null; 
+        var s = null; 
+        
+        var timeout = null; 
+        
+        function start() {
+            /* Lấy giá trị input, nếu rỗng thì cho bằng 0 */
+            var hVal = document.getElementById('h_val').value;
+            var mVal = document.getElementById('m_val').value;
+            var sVal = document.getElementById('s_val').value;
+
+            h = hVal === "" ? 0 : parseInt(hVal);
+            m = mVal === "" ? 0 : parseInt(mVal);
+            s = sVal === "" ? 0 : parseInt(sVal);
+
+            // Dừng timeout cũ nếu có bấm Start nhiều lần
+            stop(); 
+            demNguoc();
+        }
+        
+        function demNguoc() {
+            if (s === -1) {
+                m -= 1;
+                s = 59;
+            }
+            if (m === -1) {
+                h -= 1;
+                m = 59;
+            }
+            
+            if (h == -1) {
+                clearTimeout(timeout);
+                alert('Hết giờ rồi!');
+                return;
+            }
+
+            // Hiển thị ra màn hình
+            // Mẹo nhỏ: Thêm số 0 đằng trước nếu nhỏ hơn 10 nhìn cho đẹp (05:09:01)
+            document.getElementById('h').innerText = h < 10 ? "0" + h : h;
+            document.getElementById('m').innerText = m < 10 ? "0" + m : m;
+            document.getElementById('s').innerText = s < 10 ? "0" + s : s;
+
+            s--; // Giảm giây
+
+            timeout = setTimeout(function(){
+                demNguoc();
+            }, 1000);
+        }
+
+        function stop(){
+            clearTimeout(timeout);
+        }
+    </script>
+</head>
+<body>
+
+    <div class="clock-card">
+        <h2>Countdown Timer</h2>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="text" id="h_val" placeholder="00"/>
+                <span class="input-label">Giờ</span>
+            </div>
+            <div class="input-wrapper">
+                <input type="text" id="m_val" placeholder="00"/>
+                <span class="input-label">Phút</span>
+            </div>
+            <div class="input-wrapper">
+                <input type="text" id="s_val" placeholder="00"/>
+                <span class="input-label">Giây</span>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <input type="button" value="Start" onclick="start()"/>
+            <input type="button" value="Stop" onclick="stop()"/>
+        </div>
+        
+        <div class="display-area">
+            <span id="h">00</span>
+            <span class="colon">:</span>
+            <span id="m">00</span>
+            <span class="colon">:</span>
+            <span id="s">00</span>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bài 1: Nhập xuất thông tin</title>
+</head>
+<body>
+    <h2>Nhập thông tin cá nhân</h2>
+    <input type="text" id="nameInput" placeholder="Nhập tên của bạn">
+    <input type="number" id="ageInput" placeholder="Nhập tuổi">
+    <button onclick="hienThiThongTin()">Hiển thị</button>
+
+    <div id="result"></div>
+
+    <script>
+        function hienThiThongTin() {
+            // 1. Lấy giá trị từ ô input
+            var ten = document.getElementById("nameInput").value;
+            var tuoi = document.getElementById("ageInput").value;
+
+            // 2. Tạo chuỗi HTML theo yêu cầu
+            // H1 màu xanh (blue), in đậm (bold)
+            var htmlTen = "<h1 style='color: blue; font-weight: bold;'>" + ten + "</h1>";
+            // H2 gạch chân (text-decoration: underline)
+            var htmlTuoi = "<h2 style='text-decoration: underline;'>" + tuoi + "</h2>";
+
+            // 3. Xuất ra màn hình (innerHTML)
+            document.getElementById("result").innerHTML = htmlTen + htmlTuoi;
+        }
+    </script>
+</body>
+</html>

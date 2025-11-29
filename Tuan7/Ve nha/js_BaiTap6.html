@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đại Chiến Anh Hùng & Rồng Cute</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 1. CẤU HÌNH GIAO DIỆN CHUNG --- */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); /* Nền xanh mát mẻ */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 0px #74b9ff;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Khung trò chơi */
+        .game-arena {
+            background: rgba(255, 255, 255, 0.9);
+            width: 800px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Khu vực chiến đấu (2 nhân vật) */
+        .battle-ground {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 30px;
+            padding: 0 50px;
+            box-sizing: border-box;
+        }
+
+        /* Thẻ nhân vật */
+        .char-card {
+            text-align: center;
+            width: 200px;
+            position: relative;
+        }
+
+        .char-name {
+            font-weight: 900;
+            font-size: 20px;
+            color: #636e72;
+            margin-bottom: 10px;
+        }
+
+        /* Ảnh nhân vật */
+        .char-img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            transition: transform 0.2s;
+            filter: drop-shadow(0 10px 5px rgba(0,0,0,0.1));
+        }
+
+        /* Thanh máu (Health Bar) */
+        .hp-bar-bg {
+            width: 100%;
+            height: 15px;
+            background-color: #dfe6e9;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .hp-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Màu máu Hero: Xanh ngọc */
+        #heroHP .hp-fill { background-color: #00cec9; }
+        /* Màu máu Rồng: Hồng cam */
+        #dragonHP .hp-fill { background-color: #ff7675; }
+
+        .hp-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: #b2bec3;
+            margin-top: 5px;
+        }
+
+        /* --- 2. HIỆU ỨNG ANIMATION (QUAN TRỌNG ĐỂ LẤY ĐIỂM) --- */
+        
+        /* Animation: Rung lắc khi bị đánh */
+        .shake { animation: shakeAnim 0.5s; }
+        @keyframes shakeAnim {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* Animation: Tấn công (Lao lên) */
+        .attack-right { animation: lungeRight 0.3s forwards; }
+        @keyframes lungeRight { 
+            0% { transform: translateX(0); } 
+            50% { transform: translateX(100px) scale(1.1); } 
+            100% { transform: translateX(0); } 
+        }
+
+        .attack-left { animation: lungeLeft 0.3s forwards; }
+        @keyframes lungeLeft { 
+            0% { transform: translateX(0); } 
+            50% { transform: translateX(-100px) scale(1.1); } 
+            100% { transform: translateX(0); } 
+        }
+
+        /* Animation: Né đòn (Mờ đi và lùi lại) */
+        .dodge { animation: dodgeAnim 0.5s; }
+        @keyframes dodgeAnim {
+            0% { opacity: 1; transform: translateX(0); }
+            50% { opacity: 0.3; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Hiệu ứng số Damage bay lên */
+        .damage-number {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            font-weight: bold;
+            color: #d63031;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .float-up { animation: floatUp 1s forwards; }
+        @keyframes floatUp {
+            0% { opacity: 1; top: 20%; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; top: -20%; transform: translate(-50%, 0) scale(1.5); }
+        }
+
+        /* --- 3. KHU VỰC ĐIỀU KHIỂN & LOG --- */
+        .controls button {
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
+            transition: all 0.2s;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .controls button:hover {
+            transform: translateY(-3px);
+            background-color: #5849be;
+        }
+        
+        .controls button:disabled {
+            background-color: #b2bec3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Khung lịch sử trận đấu */
+        .log-box {
+            width: 100%;
+            height: 150px;
+            margin-top: 20px;
+            background: #f1f2f6;
+            border-radius: 15px;
+            padding: 15px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            text-align: left;
+            border: 2px solid #dfe6e9;
+        }
+
+        .log-entry { margin-bottom: 5px; font-size: 15px; }
+        .log-hero { color: #0984e3; } /* Màu chữ log của Hero */
+        .log-dragon { color: #d63031; } /* Màu chữ log của Rồng */
+        .log-system { color: #636e72; font-style: italic; }
+
+    </style>
+</head>
+<body>
+
+    <h1>⚔️ Anh Hùng Diệt Rồng ⚔️</h1>
+
+    <div class="game-arena">
+        <div class="battle-ground">
+            
+            <div class="char-card" id="hero">
+                <div class="char-name">ANH HÙNG</div>
+                <div class="damage-number" id="heroDmgNum">-0</div>
+                
+                <img src="https://cdn-icons-png.flaticon.com/512/3062/3062837.png" class="char-img" id="heroImg" alt="Knight">
+                
+                <div class="hp-bar-bg" id="heroHP">
+                    <div class="hp-fill" style="width: 100%;"></div>
+                </div>
+                <div class="hp-text" id="heroHPText">100 / 100</div>
+            </div>
+
+            <div style="display: flex; align-items: center; font-size: 40px; color: #fab1a0; font-weight: 900;">VS</div>
+
+            <div class="char-card" id="dragon">
+                <div class="char-name">RỒNG LỬA</div>
+                <div class="damage-number" id="dragonDmgNum">-0</div>
+                
+                <img src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" class="char-img" id="dragonImg" alt="Dragon">
+                
+                <div class="hp-bar-bg" id="dragonHP">
+                    <div class="hp-fill" style="width: 100%;"></div>
+                </div>
+                <div class="hp-text" id="dragonHPText">100 / 100</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="btnAttack" onclick="turnPlayer()">🔥 TẤN CÔNG 🔥</button>
+            <button id="btnReset" onclick="location.reload()" style="display:none; background-color: #00b894;">Chơi lại</button>
+        </div>
+
+        <div class="log-box" id="gameLog">
+            <div class="log-entry log-system">Trận đấu bắt đầu! Hãy nhấn nút Tấn Công.</div>
+        </div>
+    </div>
+
+    <script>
+        // --- CẤU HÌNH THÔNG SỐ GAME ---
+        var hero = { hp: 100, maxHp: 100, minDmg: 10, maxDmg: 20, dodgeRate: 0.15 }; // 15% né
+        var dragon = { hp: 100, maxHp: 100, minDmg: 12, maxDmg: 25, dodgeRate: 0.1 }; // 10% né
+        var isTurn = true; // Biến chặn spam nút
+
+        // Hàm ghi Log
+        function addLog(msg, type) {
+            var logBox = document.getElementById("gameLog");
+            var div = document.createElement("div");
+            div.className = "log-entry " + type;
+            div.innerHTML = msg;
+            logBox.appendChild(div);
+            logBox.scrollTop = logBox.scrollHeight; // Tự cuộn xuống
+        }
+
+        // Hàm random số
+        function random(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Hàm hiển thị Damage bay lên
+        function showDamage(charId, dmg, isMiss) {
+            var el = document.getElementById(charId + "DmgNum");
+            el.innerText = isMiss ? "MISS" : "-" + dmg;
+            el.style.color = isMiss ? "#b2bec3" : "#d63031";
+            
+            // Reset animation
+            el.classList.remove("float-up");
+            void el.offsetWidth; // Trigger reflow
+            el.classList.add("float-up");
+        }
+
+        // Hàm cập nhật máu trên giao diện
+        function updateUI() {
+            // Hero
+            var heroPercent = (hero.hp / hero.maxHp) * 100;
+            document.querySelector("#heroHP .hp-fill").style.width = heroPercent + "%";
+            document.getElementById("heroHPText").innerText = hero.hp + " / " + hero.maxHp;
+
+            // Dragon
+            var dragonPercent = (dragon.hp / dragon.maxHp) * 100;
+            document.querySelector("#dragonHP .hp-fill").style.width = dragonPercent + "%";
+            document.getElementById("dragonHPText").innerText = dragon.hp + " / " + dragon.maxHp;
+        }
+
+        // --- LƯỢT CHƠI CỦA NGƯỜI (KHI BẤM NÚT) ---
+        function turnPlayer() {
+            if (!isTurn) return; // Nếu đang đánh thì ko bấm được
+            isTurn = false;
+            document.getElementById("btnAttack").disabled = true;
+            document.getElementById("btnAttack").innerText = "Đang đánh...";
+
+            var heroImg = document.getElementById("heroImg");
+            var dragonImg = document.getElementById("dragonImg");
+
+            // 1. Animation Hero Tấn công
+            heroImg.classList.add("attack-right");
+            
+            setTimeout(function(){
+                heroImg.classList.remove("attack-right");
+                
+                // Tính toán sát thương
+                var isMiss = Math.random() < dragon.dodgeRate;
+                
+                if (isMiss) {
+                    addLog("Anh hùng tung chiêu nhưng <b>Rồng đã né được!</b>", "log-system");
+                    dragonImg.classList.add("dodge");
+                    showDamage("dragon", 0, true);
+                } else {
+                    var dmg = random(hero.minDmg, hero.maxDmg);
+                    dragon.hp -= dmg;
+                    if (dragon.hp < 0) dragon.hp = 0;
+                    
+                    addLog(`Anh hùng chém Rồng mất <b>${dmg}</b> máu!`, "log-hero");
+                    dragonImg.classList.add("shake");
+                    showDamage("dragon", dmg, false);
+                }
+
+                // Xóa class animation sau khi chạy xong
+                setTimeout(() => {
+                    dragonImg.classList.remove("shake");
+                    dragonImg.classList.remove("dodge");
+                }, 500);
+
+                updateUI();
+                checkWinLose();
+
+                // Nếu Rồng chưa chết thì Rồng đánh trả
+                if (dragon.hp > 0) {
+                    setTimeout(turnDragon, 1200); // Đợi 1.2s rồi Rồng đánh
+                }
+
+            }, 300); // Đợi animation lao lên chạm vào rồng
+        }
+
+        // --- LƯỢT CỦA RỒNG (TỰ ĐỘNG) ---
+        function turnDragon() {
+            var heroImg = document.getElementById("heroImg");
+            var dragonImg = document.getElementById("dragonImg");
+
+            addLog("Rồng đang tích tụ năng lượng...", "log-system");
+
+            // Animation Rồng tấn công
+            dragonImg.classList.add("attack-left");
+
+            setTimeout(function(){
+                dragonImg.classList.remove("attack-left");
+
+                var isMiss = Math.random() < hero.dodgeRate;
+
+                if (isMiss) {
+                    addLog("Rồng phun lửa nhưng <b>Bạn đã né cực hay!</b>", "log-system");
+                    heroImg.classList.add("dodge");
+                    showDamage("hero", 0, true);
+                } else {
+                    var dmg = random(dragon.minDmg, dragon.maxDmg);
+                    hero.hp -= dmg;
+                    if (hero.hp < 0) hero.hp = 0;
+
+                    addLog(`Rồng phun lửa thiêu đốt bạn mất <b>${dmg}</b> máu!`, "log-dragon");
+                    heroImg.classList.add("shake");
+                    showDamage("hero", dmg, false);
+                }
+
+                setTimeout(() => {
+                    heroImg.classList.remove("shake");
+                    heroImg.classList.remove("dodge");
+                }, 500);
+
+                updateUI();
+                checkWinLose();
+
+                // Trả lượt lại cho người chơi (nếu chưa chết)
+                if (hero.hp > 0) {
+                    isTurn = true;
+                    document.getElementById("btnAttack").disabled = false;
+                    document.getElementById("btnAttack").innerText = "🔥 TẤN CÔNG 🔥";
+                }
+
+            }, 300);
+        }
+
+        // --- KIỂM TRA THẮNG THUA ---
+        function checkWinLose() {
+            if (dragon.hp <= 0) {
+                document.getElementById("dragonImg").style.opacity = "0.2"; // Rồng mờ đi (chết)
+                addLog("🎉 CHÚC MỪNG! BẠN ĐÃ TIÊU DIỆT ĐƯỢC RỒNG!", "log-hero");
+                endGame(true);
+            } else if (hero.hp <= 0) {
+                document.getElementById("heroImg").style.opacity = "0.2";
+                addLog("💀 BẠN ĐÃ HY SINH... GAME OVER!", "log-dragon");
+                endGame(false);
+            }
+        }
+
+        function endGame(isWin) {
+            isTurn = false; // Khóa game
+            document.getElementById("btnAttack").style.display = "none";
+            document.getElementById("btnReset").style.display = "inline-block";
+            
+            if(isWin) alert("WIN RỒI! Rồng đã bị tiêu diệt.");
+            else alert("THUA RỒI! Hãy thử lại.");
+        }
+
+    </script>
+</body>
+</html>

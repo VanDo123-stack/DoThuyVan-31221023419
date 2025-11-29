@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bài 2: Alert</title>
+</head>
+<body>
+    <label>Họ và tên: </label>
+    <input type="text" id="txtHoTen">
+    <button onclick="canhBao()">Cảnh báo</button>
+
+    <script>
+        function canhBao() {
+            // Lấy nội dung trong Text box
+            var hoTen = document.getElementById("txtHoTen").value;
+            
+            // Hiển thị alert
+            alert("Truy tìm " + hoTen);
+        }
+    </script>
+</body>
+</html>

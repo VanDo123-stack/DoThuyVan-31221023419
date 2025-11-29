@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu Dropdown Pastel</title>
+    <style type="text/css">
+        /* Cấu hình chung cho trang */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font chữ đẹp, hiện đại */
+            background-color: #fdfbf7; /* Màu nền trang kem nhẹ */
+            display: flex;
+            justify-content: center; /* Căn giữa menu ra giữa màn hình */
+            padding-top: 50px;
+        }
+
+        /* Khung bao quanh menu */
+        #dropdown {
+            width: 300px; /* Tăng chiều rộng menu */
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Đổ bóng nhẹ cho đẹp */
+            border-radius: 12px; /* Bo góc menu */
+            overflow: hidden; /* Ẩn phần thừa để bo góc mượt hơn */
+            background: white;
+        }
+
+        /* Style cho các mục menu CHÍNH (Cấp 1) */
+        #dropdown > li {
+            list-style: none;
+            margin: 0;
+            border-bottom: 1px solid #f0f0f0; /* Đường gạch mờ giữa các mục */
+        }
+
+        /* Link trong menu chính */
+        #dropdown > li > a {
+            display: block; /* Để bấm được vào toàn bộ vùng */
+            padding: 15px 20px; /* Tăng khoảng cách lề cho thoáng */
+            background-color: #a29bfe; /* MÀU PASTEL: Tím nhạt */
+            color: white; /* Chữ màu trắng */
+            text-decoration: none;
+            font-size: 18px; /* Cỡ chữ to hơn */
+            font-weight: 600; /* Chữ đậm vừa phải */
+            transition: background 0.3s; /* Hiệu ứng chuyển màu mượt */
+            position: relative;
+        }
+
+        /* Hiệu ứng khi di chuột vào menu chính */
+        #dropdown > li > a:hover {
+            background-color: #6c5ce7; /* Đậm hơn một chút khi hover */
+        }
+
+        /* Style cho menu CON (Cấp 2) */
+        #dropdown ul {
+            display: none; /* Mặc định ẩn */
+            padding: 0;
+            margin: 0;
+            background-color: #ffeaa7; /* MÀU PASTEL: Vàng kem / hoặc Hồng phấn */
+        }
+
+        /* Các mục trong menu con */
+        #dropdown ul li a {
+            display: block;
+            padding: 12px 20px 12px 40px; /* Padding trái 40px để thụt đầu dòng */
+            background-color: #dfe6e9; /* MÀU PASTEL: Xám xanh nhạt */
+            color: #2d3436; /* Chữ màu xám đậm cho dễ đọc */
+            text-decoration: none;
+            font-size: 16px;
+            border-bottom: 1px solid #fff;
+            transition: padding-left 0.2s; /* Hiệu ứng đẩy chữ khi hover */
+        }
+
+        /* Hiệu ứng khi di chuột vào menu con */
+        #dropdown ul li a:hover {
+            background-color: #fab1a0; /* Đổi sang màu Cam phấn khi hover */
+            color: white;
+            padding-left: 45px; /* Chữ chạy nhẹ sang phải */
+        }
+
+        /* Biểu tượng mũi tên nhỏ cho mục có menu con (Dùng CSS vẽ) */
+        .has-submenu > a::after {
+            content: '▼';
+            font-size: 12px;
+            float: right;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <ul id="dropdown">
+        <li><a href="#">Trang chủ</a></li>
+        
+        <li class="has-submenu">
+            <a href="#">Sản phẩm</a>
+            <ul>
+                <li><a href="#">Gạch cao cấp</a></li>
+                <li><a href="#">Gạch thủ công</a></li>
+                <li><a href="#">Gạch hoa văn</a></li>
+            </ul>
+        </li>
+        
+        <li class="has-submenu">
+            <a href="#">Tin tức</a>
+            <ul>
+                <li><a href="#">Tin công nghệ</a></li>
+                <li><a href="#">Tin trong nước</a></li>
+                <li><a href="#">Tin thời sự</a></li>
+            </ul>
+        </li>
+        
+        <li class="has-submenu">
+            <a href="#">Dịch vụ</a>
+            <ul>
+                <li><a href="#">Thiết kế web</a></li>
+                <li><a href="#">Quảng cáo web</a></li>
+                <li><a href="#">Thiết kế đồ họa</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <script>
+        // --- Phần Javascript giữ nguyên logic nhưng viết gọn gàng hơn ---
+        
+        // 1. Lấy tất cả các thẻ li có class 'has-submenu'
+        var menuItems = document.querySelectorAll('.has-submenu');
+
+        // 2. Duyệt qua từng mục
+        menuItems.forEach(function(item) {
+            var link = item.querySelector('a'); // Thẻ a cha
+            var subMenu = item.querySelector('ul'); // Menu con bên trong
+
+            // Gắn sự kiện click
+            link.addEventListener('click', function(e) {
+                e.preventDefault(); // Chặn chuyển trang
+                
+                // Kiểm tra trạng thái hiện tại
+                // Lấy style thực tế của trình duyệt để so sánh chính xác
+                var currentDisplay = window.getComputedStyle(subMenu).display;
+
+                if (currentDisplay === 'block') {
+                    subMenu.style.display = 'none';
+                } else {
+                    // (Tùy chọn) Đóng các menu khác trước khi mở menu này
+                    document.querySelectorAll('#dropdown ul').forEach(function(ul){
+                        ul.style.display = 'none';
+                    });
+                    
+                    subMenu.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
